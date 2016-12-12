@@ -1,0 +1,127 @@
+<aura:component controller="NuncNewFaPanelController"  implements="force:appHostable,flexipage:availableForAllPageTypes" access="global">
+    
+    <!--********************-->
+    <!-- DOCMA EVENT SYSTEM -->
+    <!--********************-->    
+    <aura:registerEvent name="docmaNewFaCreatedEvt" type="c:docmaNewFaCreatedEvt" description="New Document Type Field Object was created"/>
+    <aura:registerEvent name="docmaNewFaByDtCreatedEvt" type="c:docmaNewFaByDtCreatedEvt" description="New Document Type Field Object was created from a Document Type parent"/>
+    <aura:registerEvent name="docmaFaEditedEvt" type="c:docmaFaEditedEvt" description="Document Type Field was edited"/>    
+    
+    <aura:handler event="c:docmaNewFaCreatedEvt" action="{!c.handleNewFaCreatedEvt}" description="New Document Type Field Object was created"/> 
+    <aura:handler event="c:docmaNewFaByDtCreatedEvt" action="{!c.handleNewFaByDtCreatedEvt}" description="New Document Type Field Object was created from a Document Type parent"/> 
+    <aura:handler event="c:docmaFaEditedEvt" action="{!c.handleFaEditedEvt}" description="Document Type Field was edited"/>  
+    <!--********************-->
+    
+    <!-- Internal Component Events -->
+    <aura:registerEvent name="nuncInitEventDoneEvt" type="c:nuncInitEventDoneEvt" description="Init event was done. It is fired from Callback."/>        
+    <aura:handler name="nuncInitEventDoneEvt" event="c:nuncInitEventDoneEvt" action="{!c.handleInitEventDoneEvt}" description="We use this event to know when the 'Select component' was feeded"/>      
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="newObject" type="DOD_Field_Assignment__c"
+                    default="{ 
+                             'sobjectType': 'DOD_Field_Assignment__c',
+                             'Name': '', 
+                             'nuncbau__DOD_Type__c': '',
+                             'nuncbau__DOD_Field_Data_Type__c': ''
+                             }" />
+    
+    <aura:attribute name="faOld" type="DOD_Field_Assignment__c" description="We save old values here before to be edited"  />    
+    <aura:attribute name="faOldName" type="String" description="Only the old Name. It's useful with the Clone functionality"/>        
+    <aura:attribute name="mode" type="String" default="default" description="new, createBy, edit" />     
+    <aura:attribute name="dataTypeList" type="SelectOption[]" description="All Data types from Server" />      
+    <aura:attribute name="dtList" type="DOD_Type__c[]" description="All Documnt types from Server" />      
+    <aura:attribute name="dtId" type="String" default="false" description="Document type parent Id" />
+    <aura:attribute name="dtName" type="String" default="false" description="Document type parent Name" />
+    <aura:attribute name="dtItem" type="DOD_Type__c" description="Document type parent Object" />   
+    
+    <!--***************************************************************************************************************-->
+    
+    <div role="dialog" aura:id="Modalbox" tabindex="-1" aria-labelledby="header43" class="slds-modal">   
+        <div class="slds-modal__container">
+            
+            
+            
+            <!--********-->
+            <!-- HEADER -->
+            <!--********-->
+            <div class="slds-modal__header">
+                <aura:if isTrue="{! v.mode == 'createBy' }">
+                    <h2 class="slds-text-heading--medium">Create a Document Type Field from <b>{!v.dtItem.Name}</b> Document type</h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'new' }">
+                    <h2 class="slds-text-heading--medium">Create a new <b>Document Type Field</b></h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'edit' }">
+                    <h2 class="slds-text-heading--medium">Editing <b>{!v.newObject.Name}</b> Document Type Field</h2>
+                </aura:if>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!--* BODY *-->
+            <!--********-->
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds"> 
+                    <form class="slds-form--stacked ">                
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:inputText aura:id="itemName" label="Document Type Field Name"
+                                              class="slds-input"
+                                              labelClass="slds-form-element__label"
+                                              value="{!v.newObject.Name}"
+                                              required="true"
+                                              requiredIndicatorClass="slds-required" />                                                   
+                            </div>                    
+                        </div>                      
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                              
+                                <ui:inputSelect aura:id="faDocType" label="Document Type" 
+                                                class="slds-input"
+                                                labelClass="slds-form-element__label"
+                                                required="true"
+                                                value="{!v.newObject.nuncbau__DOD_Type__c}"
+                                                requiredIndicatorClass="slds-required">
+                                    
+                                    <aura:iteration items="{!v.dtList}" var="item">                               
+                                        <ui:inputSelectOption text="{!item.Id}" label="{!item.Name}" aura:id="selectDtOption"/>                              
+                                    </aura:iteration>
+                                </ui:inputSelect>   
+                            </div>                    
+                        </div>
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                              
+                                <ui:inputSelect aura:id="faDataType" label="Data Type" 
+                                                class="slds-input"
+                                                labelClass="slds-form-element__label"
+                                                required="true"
+                                                value="{!v.newObject.nuncbau__DOD_Field_Data_Type__c}"
+                                                requiredIndicatorClass="slds-required">
+                                    
+                                    <aura:iteration items="{!v.dataTypeList}" var="item">                               
+                                        <ui:inputSelectOption text="{!item}" label="{!item}" aura:id="selectDataTypeOption"/>                              
+                                    </aura:iteration>
+                                </ui:inputSelect>   
+                            </div>                    
+                        </div>                        
+                    </form>
+                    
+                </div>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!-- FOOTER -->
+            <!--********-->                
+            <div class="slds-modal__footer">
+                
+                <lightning:button label="Cancel" onclick="{!c.closeModal}"/>
+                <lightning:button label="Save" onclick="{!c.saveItem}" class="slds-button slds-button--brand"/>
+                
+            </div>
+        </div>
+    </div>
+    <div class="slds-backdrop" aura:id="MB-Back"></div>
+    
+</aura:component>

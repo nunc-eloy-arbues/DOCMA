@@ -1,0 +1,7 @@
+.THIS .nunc-hidde{
+    display:none;
+}
+
+.THIS .nunc-row-selected {
+    border: .2rem solid #b94a48;
+}

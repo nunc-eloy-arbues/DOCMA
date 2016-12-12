@@ -1,0 +1,65 @@
+<aura:component controller="NuncDtSliderController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global">
+    
+    <!-- DOCMA EVENT SYSTEM -->
+    <aura:handler event="c:docmaDtDeletedEvt" action="{!c.handleDtDeletedEvt}" description="Document type object was deleted"/> 
+    <aura:handler event="c:docmaDtClonedEvt" action="{!c.handleDtClonedEvt}" description="Document type object was cloned"/>             
+    <aura:handler event="c:docmaDtEditedEvt" action="{!c.handleDtEditedEvt}" description="Document type object was edited"/>         
+    <!-- END -->
+    <aura:attribute name="tileSize" type="integer" default="150"/> 
+    <aura:attribute name="list" type="DOD_Type__c[]" />
+    <aura:attribute name="tileSelected" type="Integer" description="Tile selected on the Slider"/>
+    
+    <aura:attribute name="pageSize" type="integer" description="Number of Document Type per page"/>  
+    <aura:attribute name="paginationAction" type="String" default="" />
+    <aura:attribute name="startPoint" type="Integer" default="0" />
+    <aura:attribute name="endPoint" type="Integer" default="0" />
+    
+    <aura:registerEvent name="nuncInitEventDoneEvt" type="c:nuncInitEventDoneEvt" description="Init event was done. It is fired from Callback."/>        
+
+	<aura:handler name="nuncInitEventDoneEvt" event="c:nuncInitEventDoneEvt" action="{!c.handleInitEventDoneEvt}" description="We use this event to know when the 'Select component' was feeded"/>          
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" /> 
+    <aura:handler event="ltng:selectSObject" action="{!c.faChangeHandler}"/>   
+    <aura:handler name="change" value="{!v.startPoint}" action="{!c.handleStartPointChange}"/>
+    
+    <!-- ***************************************************************************************** -->
+    
+    <div class="nunc-slider-container" aura:id="nunc-slider-container">
+        
+        <lightning:layout horizontalAlign="center" verticalAlign="center" 
+                          multipleRows="true" class="nunc-slider-tiles-container" >  
+            <aura:iteration items="{!v.list}" var="item" indexVar="indx" start="{!v.startPoint}" end="{!v.endPoint}">
+                <!-- <aura:iteration items="{!v.list}" var="item" indexVar="indx" start="{!v.startPoint}">-->
+                <lightning:layoutItem >
+                    <c:nuncDtSliderItem object="{!item}" index="{!indx}" sliderFocus="{!v.tileSelected}" tileSize="{!v.tileSize}" />
+                </lightning:layoutItem>    
+            </aura:iteration>
+        </lightning:layout>
+        
+        <div class="nunc-slider-controlBar-container"> 
+            <div class="slds-grid slds-grid--align-spread">
+                
+                <div class="slds-align--absolute-center"> 
+                    <div class="slds-form--inline">
+                        <div class="slds-form-element">
+                            <div class="slds-form-element__control">
+                                <ui:inputNumber aura:id="inputPageSize" label="SHOWN ITEMS" labelClass="nunc-slider-inputLabel nunc-margin-right" 
+                                                value="{!v.pageSize}" class="nunc-slider-controlBar-input" size="2" blur="{!c.validateInput}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="slds-align--absolute-center">
+                    <lightning:buttonIcon class="nunc-slider-controlBar-button" size="medium" value="Prev" variant="border-inverse" alternativeText="Next" iconName="utility:chevronleft"  onclick="{!c.handleClickPrev}" />
+                    <ui:outputText title="Current Tiles" value="{!'  ' + (v.startPoint+1) +' - '+ (v.startPoint+v.pageSize) + '  '}" class="nunc-margin-left nunc-margin-right" />
+                    <lightning:buttonIcon class="nunc-slider-controlBar-button" size="medium" value="Next" variant="border-inverse" alternativeText="Prev" iconName="utility:chevronright" onclick="{!c.handleClickNext}" />
+                </div>
+                
+                <div class="slds-align--absolute-center" >
+                    <ui:outputText title="Pages" value="{! 'TOTAL DOCTYPE: ' + v.list.length }" class="nunc-slider-info" />
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</aura:component>

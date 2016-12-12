@@ -1,0 +1,74 @@
+/* 
+* dark grey: #d8dde6
+* light grey: #f4f6f9
+* button grey: #9faab5
+* border: #d8dde6
+* dark blue: #01344e
+* light blue: #92d5f0
+* red: #b94a48
+*/
+
+.THIS .tileContainer {
+    position:relative;
+    display: inline-block;
+    margin: 1rem .5rem 1rem .5rem;
+    border: solid 1px #d8dde6;
+    border-radius: .3rem;
+    padding: .4rem .6rem;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: #f4f6f9;
+}
+
+.THIS .nunc-info-box {
+    position: absolute;
+    width:100%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #f4f6f9;
+    padding: .4rem .6rem;
+    border-radius: 0rem 0rem .3rem .3rem;;
+}
+
+.THIS h1 {
+    font-variant:small-caps;
+    word-break: break-word;
+    line-height: 100%;
+    
+    padding: 0rem 0rem 0rem 0rem;
+    margin-bottom: .2rem;
+    width: 100%;   
+}
+
+.THIS .nunc-details-box {
+    color:#54698d;
+    line-height: 1rem;
+}
+
+.THIS .quick-action-button {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+}
+
+.THIS .truncate {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.THIS .nunc-hidde {
+    display:none;
+}
+
+.THIS .nunc-tile-selected {
+    outline: .5rem solid #b94a48;
+    border-radius: 0rem;
+}
+
+.THIS .nunc-tile-selected .nunc-info-box {
+    
+}

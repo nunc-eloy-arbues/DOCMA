@@ -1,0 +1,8 @@
+<aura:event type="APPLICATION" description="Blueprint object edited.">
+    <aura:attribute name="bpItem" type="DOD_Blue_Print_Setup__c" default="false" description="" />
+    <aura:attribute name="bpParentObject" type="DOD_Blue_Print_Setup__c" default="false" description="Parent Blueprint Object" />
+    <aura:attribute name="bpParentId" type="DOD_Blue_Print_Setup__c" default="false" description="Parent Blueprint Id" />
+    <aura:attribute name="dtId" type="String" default="false" description="Parent Document Type Id" />
+    <aura:attribute name="dtItem" type="DOD_Type__c" default="false" description="Parent Document Type object" />
+    <aura:attribute name="bpfList" type="DOD_User_Dialog_Field__c" default="false"  description="List with all related Blueprint fields / DOD User Dialog Fields" />
+</aura:event>

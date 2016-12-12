@@ -1,0 +1,64 @@
+<aura:component controller="NuncDtSliderController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global">
+    
+    <!-- DOCMA EVENTS SYSTEM -->  
+	<aura:registerEvent name="docmaDtDeletedEvt" type="c:docmaDtDeletedEvt" description="We fire this event with the deleted Document type"/>
+    <aura:registerEvent name="docmaDtClonedEvt" type="c:docmaDtClonedEvt" description="Docuemnt type object cloned."/>    
+    
+    <aura:handler event="c:docmaNewBpCreatedEvt" action="{!c.handleNewBpCreatedEvt}" description="New Blueprint Object was created"/> 
+    <aura:handler event="c:docmaNewBpByDtCreatedEvt" action="{!c.handleNewBpByDtCreatedEvt}" description="New Blueprint Object was created from a Document Type parent"/> 
+    <aura:handler event="c:docmaBpClonedEvt" action="{!c.handleBpClonedEvt}" description="Blueprint object was cloned"/> 
+    <aura:handler event="c:docmaBpDeletedEvt" action="{!c.handleBpDeletedEvt}" description="Blueprint object was deleted"/> 
+    <aura:handler event="c:docmaDtEditedEvt" action="{!c.handleDtEditedEvt}" description="Document type object was edited"/>             
+	<aura:handler event="c:docmaNewFaByDtCreatedEvt" action="{!c.handleNewFaByDtCreatedEvt}" description="New Document Type Field Object was created from a Document Type parent"/>     
+	<aura:handler event="c:docmaFaDeletedEvt" action="{!c.handleFaDeletedEvt}" description="Document Type Field object was deleted"/>         
+
+    <!-- *** -->
+    
+    <aura:attribute name="tileSize" type="integer" default="150" description="Number of Doctumnet type tiles shown"/>
+    <aura:attribute name="amountFa" type="integer" default="" description="Number of Document fields" />
+    <aura:attribute name="amountBp" type="integer" default="" description="Number of Blueprint documents" />
+    <aura:attribute name="index" type="Integer" description="Tile position inside the Slider"/>
+    <aura:attribute name="object" type="DOD_Type__c" description="Object type Document Type"/> 
+    <aura:attribute name="select" type="Boolean" default="false" description="If this tile is selected or not"/>
+    <aura:attribute name="recordState" type="String" default="normal" description="New, Editing, Deleted, Normal..."/>    
+    <aura:attribute name="sliderFocus" type="Integer" description="This parameter comes from Slider component to know what is the current Tile selected."/>
+    <aura:attribute name="state" type="Boolean" default="false" description="If this tile is on Edit process or not"/>    
+    
+    <aura:registerEvent name="navigateToSObject" type="force:navigateToSObject"/>
+    <aura:registerEvent name="selectSObject" type="ltng:selectSObject"/>
+    <aura:registerEvent name="deleteItemEvent" type="c:nuncDeleteItemEvt" description="We fire this event with the deleted item to refresh the list of Slider."/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <aura:handler name="change" value="{!v.sliderFocus}" action="{!c.updateTileState}" description="The current selected Tile was changed from parent component."/>
+    <aura:handler name="change" value="{!v.select}" action="{!c.updateSelect}" description=""/>
+    
+    <!-- ****************************************************************************** -->
+       
+    <a onclick="{!c.tileSelected}">
+        <div aura:id="tileContainer"  class="tileContainer" 
+             style="{! 'width:' + (v.tileSize-(v.tileSize/4)) + 'px;height:' + v.tileSize + 'px;'}">
+            <lightning:icon iconName="custom:custom18" size="large" alternativeText="{!v.object.Name}"/>
+            <div class="nunc-info-box">               
+                <h1 class="slds-section__title">{!v.object.Name}</h1>
+                <ul class="nunc-details-box">
+                    <li class="">DTF: ( {!v.amountFa} )</li>
+                    <li class="">DBP: ( {!v.amountBp} )</li>
+                </ul>
+            </div>
+            <lightning:buttonMenu name="menuQuickAction" aura:id="menuQuickAction" value="{!v.object}" 
+                                  onselect="{!c.openQuickMenuAction}" alternativeText="Document Type quick action menu" 
+                                  menuAlignment="right" iconSize="x-small" class="quick-action-button"
+                                  title="Document Type quick action menu" variant="border-filled">
+                <lightning:menuItem title="Details" label="Details" value="{!indx}" iconName="utility:info_alt"/>
+                <lightning:menuItem title="Edit" label="{! 'Edit '+v.object.Name}" value="{!indx}" iconName="utility:edit_form"/>
+                <lightning:menuItem title="Delete" label="Delete" value="{!indx}" iconName="utility:delete"/>
+                <lightning:menuItem title="New Blueprint" label="New Blueprint" value="{!indx}" iconName="utility:merge" disabled="true" class="nunc-hidde"/>
+                <lightning:menuItem title="Clone" label="Clone" value="{!indx}" iconName="utility:file" disabled="false"/>
+            </lightning:buttonMenu>               
+        </div>
+    </a> 
+    
+    <div aura:id="modalDiv">
+    </div>
+    
+</aura:component>

@@ -1,0 +1,97 @@
+<aura:component controller="NuncFaRelatedListController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global">
+    
+    <!-- DOCMA EVENT SYSTEM -->
+    <aura:handler event="c:docmaNewFaCreatedEvt" action="{!c.handleNewFaCreatedEvt}" description="New Document Type Field Object was created"/> 
+    <aura:handler event="c:docmaNewFaByDtCreatedEvt" action="{!c.handleNewFaByDtCreatedEvt}" description="New Document Type Field Object was created from a Document Type parent"/> 
+    <aura:handler event="c:docmaFaEditedEvt" action="{!c.handleFaEditedEvt}" description="Document Type Field was edited"/>  
+    <aura:handler event="c:docmaFaDeletedEvt" action="{!c.handleFaDeletedEvt}" description="Document Type Field object was deleted"/>     
+    <aura:handler event="c:docmaFaClonedEvt" action="{!c.handleFaClonedEvt}" description="Document Type Field object was cloned"/>         
+    <aura:handler event="c:docmaDtDeletedEvt" action="{!c.handleDtDeletedEvt}" description="Document type object was deleted"/> 
+    <aura:handler event="c:docmaDtEditedEvt" action="{!c.handleDtEditedEvt}" description="Document type object was edited"/>         
+    
+    <aura:registerEvent name="docmaFaDeletedEvt" type="c:docmaFaDeletedEvt" description="We fire this event with the deleted Document Type Field object."/>
+    <!-- END -->
+    
+    <aura:attribute name="dtId" type="String" description="Variable to save Document type Id"/> 
+    <aura:attribute name="dtItem" type="DOD_Type__c" description="Variable to save parent Document type"/> 
+    <aura:attribute name="list" type="DOD_Field_Assignment__c[]" description="List feeded with all Document Type Field from parent Document type"/>    
+    <aura:attribute name="maxItems" type="Integer" description="Max number items to show on the list"/>
+    
+    <aura:registerEvent name="navigateToSObject" type="force:navigateToSObject" description="Event to open the page record"/>
+    
+    <aura:handler event="ltng:selectSObject" action="{!c.handleSObjectEvt}"/>
+    
+    <div class="nunc">       
+        <article class="slds-card">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media--center slds-has-flexi-truncate">
+                    <div class="slds-media__figure">
+                        <c:svgIcon class="slds-icon slds-icon-custom-custom40 slds-icon--small"
+                                   svgPath="/resource/SLDS213/assets/icons/custom-sprite/svg/symbols.svg#custom40"
+                                   category="custom"
+                                   size="small"
+                                   name="custom40" />
+                    </div>
+                    <div class="slds-media__body slds-truncate">
+                        <h2>
+                            <a href="#" class="slds-text-link--reset" onclick="{!c.aPress}">
+                                <span class="slds-text-heading--small">Document Type Fields ({!v.list.length})</span>
+                            </a>
+                        </h2>
+                    </div>
+                </header>
+                <div class="slds-no-flex">
+                    <button class="slds-button slds-button--neutral" onclick="{!c.createFa}">Create DTF</button>
+                </div>
+            </div>
+            <div class="slds-card__body">
+                <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-table--striped slds-max-medium-table--stacked  slds-table--col-bordered">
+                    <thead>
+                        <tr class="slds-text-title--caps">
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Name">Name</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Data type">Data type</div>
+                            </th>
+                            <th scope="col" class="slds-cell-shrink">
+                                <div class="slds-truncate" title="Action">Action</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody > 
+                        <aura:iteration items="{!v.list}" var="item" indexVar="indx">
+                            <tr>
+                                <th role="row" data-label="Document Type Field Name">
+                                    <div class="slds-truncate slds-text-body--regular" title="{!item.Name}">
+                                       <a data-id="{!item.Id}" onclick="{!c.navigateToPageRecord}">
+                                            {!item.Name}
+                                        </a>
+                                    </div>
+                                </th>
+                                <td data-label="Data Type">
+                                    <div class="slds-truncate slds-text-body--regular"  title="{!item.nuncbau__DOD_Field_Data_Type__c}">{!item.nuncbau__DOD_Field_Data_Type__c}</div>
+                                </td>
+                                <td role="row" data-label="Action" class="slds-cell-shrink">                                                                      
+                                    <lightning:buttonMenu name="menuQuickAction" aura:id="menuQuickAction" value="{!item}" alternativeText="Quick Actions" 
+                                                          onselect="{!c.openQuickMenuAction}" menuAlignment="right" iconSize="x-small" >
+                                        <lightning:menuItem title="Details" label="Details" value="{!item}" iconName="utility:info_alt"/>
+                                        <lightning:menuItem title="Edit" label="{! 'Edit '+item.Name}" value="{!item}" iconName="utility:edit_form"/>
+                                        <lightning:menuItem title="Delete" label="Delete" value="{!item}" iconName="utility:delete" disabled="false"/>
+                                        <lightning:menuItem title="New BPF" label="New BPF" value="{!item}" iconName="utility:merge" disabled="false"/>                                                                                                                    
+                                    </lightning:buttonMenu>                              
+                                </td>
+                            </tr>
+                        </aura:iteration>                                
+                    </tbody>
+                </table>
+            </div>
+            <div class="slds-card__footer">
+                <a href="#" onclick="{!c.aPress}"><span class="slds-assistive-text">View All ({!v.list.length})</span></a>
+            </div>
+        </article>
+    </div>  
+    
+    <div aura:id="modalDiv">
+    </div>
+</aura:component>

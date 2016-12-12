@@ -1,0 +1,3 @@
+<design:component label="nuncDtSlider">
+    <design:attribute name="pageSize" label="Documents Type per page" default="6" description="Number of Document Type per page" />
+</design:component>

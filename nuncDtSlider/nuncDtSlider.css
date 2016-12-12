@@ -1,0 +1,52 @@
+.THIS .nunc-slider-tiles-container {
+    border-top:1px solid #d8dde6;
+    border-left:1px solid #d8dde6;
+    border-right:1px solid #d8dde6;
+    border-top-left-radius:.3rem;
+    border-top-right-radius:.3rem;
+    background-color:#92d5f0;
+}
+
+.THIS .nunc-slider-controlBar-container {
+    width:100%;
+    border-bottom:1px solid #d8dde6;
+    border-left:1px solid #d8dde6;
+    border-right:1px solid #d8dde6;    
+    border-bottom-left-radius:.3rem;
+    border-bottom-right-radius:.3rem;    
+    background-color:#01344e;
+    color:#ffffff;
+}
+
+.THIS .nunc-slider-controlBar-button {
+    margin:5p 5px 5px 5px;
+}
+
+.THIS .nunc-margin-right {
+    margin-right:1rem;
+}
+
+.THIS .nunc-margin-left {
+    margin-left:1rem;
+}
+.THIS .nunc-slider-input {
+    width:3rem;
+    text-align:center;
+}
+
+.THIS .nunc-slider-controlBar-input {
+    width:3rem;
+    text-align:center;
+    background-color:#01344e;
+    color:#FFFFFF;
+    border:1px solid #FFFFFF;
+}
+
+.THIS .nunc-slider-controlBar-input:focus {
+    background-color:#FFFFFF;
+    color:#16325c;
+}
+
+.THIS .nunc-slider-inputLabel {
+    color:#FFFFFF;
+}

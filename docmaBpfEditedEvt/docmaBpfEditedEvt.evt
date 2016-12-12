@@ -1,0 +1,6 @@
+<aura:event type="APPLICATION" description="New Blueprint Field object edited.">
+    <aura:attribute name="bpfItem" type="DOD_User_Dialog_Field__c" default="false" description="New object" />
+    <aura:attribute name="bpId" type="String" default="false" description="Parent Document Blueprint Id" />
+    <aura:attribute name="bpItem" type="DOD_Blue_Print_Setup__c" default="false" description="Parent Document Blueprint object" />
+    <aura:attribute name="faItem" type="DOD_Field_Assignment__c" default="false" description="Parent Field Assignment object" />    
+</aura:event>

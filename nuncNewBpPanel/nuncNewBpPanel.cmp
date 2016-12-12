@@ -1,0 +1,124 @@
+<aura:component controller="NuncNewBpPanelController"  implements="force:appHostable,flexipage:availableForAllPageTypes" access="global">
+    
+    <!--********************-->
+    <!-- DOCMA EVENT SYSTEM -->
+    <!--********************-->    
+    <aura:registerEvent name="docmaNewBpCreatedEvt" type="c:docmaNewBpCreatedEvt" description="New Blueprint object created."/>
+    <aura:registerEvent name="docmaNewBpByDtCreatedEvt" type="c:docmaNewBpByDtCreatedEvt" description="New Blueprint object created from a Document Type object."/>
+    <aura:registerEvent name="docmaBpEditedEvt" type="c:docmaBpEditedEvt" description="Blueprint object edited."/>    
+    
+    <aura:handler event="c:docmaNewBpCreatedEvt" action="{!c.handleNewBpCreatedEvt}" description="New Blueprint Object was created"/> 
+    <aura:handler event="c:docmaNewBpByDtCreatedEvt" action="{!c.handleNewBpByDtCreatedEvt}" description="New Blueprint Object was created from a Document Type parent"/> 
+    <aura:handler event="c:docmaBpEditedEvt" action="{!c.handleBpEditedEvt}" description="Blueprint object was edited"/>     
+    <!--********************-->
+    
+    <!-- Internal Component Events -->
+    <aura:registerEvent name="nuncInitEventDoneEvt" type="c:nuncInitEventDoneEvt" description="Init event was done. It is fired from Callback."/>        
+    <aura:handler name="nuncInitEventDoneEvt" event="c:nuncInitEventDoneEvt" action="{!c.handleInitEventDoneEvt}" description="We use this event to know when the 'Select component' was feeded"/>      
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="newBpObject" type="DOD_Blue_Print_Setup__c" description="Where the new Blueprint is saved" 
+                    default="{ 
+                             'sobjectType': 'DOD_Blue_Print_Setup__c',
+                             'Name': '', 
+                             'nuncbau__Description__c': '',
+                             'nuncbau__DOD_Type__c': '',
+                             'nuncbau__Parent_Blue_Print__c': ''
+                             }" />
+    <aura:attribute name="bpOld" type="DOD_Blue_Print_Setup__c" description="We save Bp values here before to be edited"  />    
+    <aura:attribute name="bpOldName" type="String" description="Only the old Name. It's useful with the Clone functionality"/>        
+    <aura:attribute name="mode" type="String" default="default" description="new, createBy, edit" />     
+    <aura:attribute name="dtList" type="DOD_Type__c[]" description="All Documnt types from Server" />      
+    <aura:attribute name="dtId" type="String" default="false" description="Document type parent Id" />
+    <aura:attribute name="dtName" type="String" default="false" description="Document type parent Name" />
+    <aura:attribute name="dtItem" type="DOD_Type__c" description="Document type parent Object" />
+    <aura:attribute name="bpParentItem" type="DOD_Blue_Print_Setup__c" description="Blueprint parent Object" />
+    
+    
+    <!--***************************************************************************************************************-->
+    
+    <div role="dialog" aura:id="Modalbox" tabindex="-1" aria-labelledby="header43" class="slds-modal">   
+        <div class="slds-modal__container">
+            
+            
+            
+            <!--********-->
+            <!-- HEADER -->
+            <!--********-->
+            <div class="slds-modal__header">
+                <aura:if isTrue="{! v.mode == 'createBy' }">
+                    <h2 class="slds-text-heading--medium">Create a Blueprint from <b>{!v.dtItem.Name}</b> Document type</h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'new' }">
+                    <h2 class="slds-text-heading--medium">Create a <b>new Blueprint</b> Document</h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'edit' }">
+                    <h2 class="slds-text-heading--medium">Editing <b>{!v.newBpObject.Name}</b> Blueprint</h2>
+                </aura:if>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!--* BODY *-->
+            <!--********-->
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds"> 
+                    <form class="slds-form--stacked ">                
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:inputText aura:id="itemName" label="DOD Blue Print Setup Name"
+                                              class="slds-input"
+                                              labelClass="slds-form-element__label"
+                                              value="{!v.newBpObject.Name}"
+                                              required="true"
+                                              requiredIndicatorClass="slds-required" />                                                   
+                            </div>                    
+                        </div>
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                              
+                                <ui:inputTextArea aura:id="bpDescription" label="Description"
+                                                  class="slds-input"
+                                                  labelClass="slds-form-element__label"
+                                                  value="{!v.newBpObject.nuncbau__Description__c}"
+                                                  required="false"
+                                                  requiredIndicatorClass="slds-required"
+                                                  rows="2" />                                                   
+                            </div>                    
+                        </div>                        
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                              
+                                <ui:inputSelect aura:id="bpDocType" label="DOD Type Name" 
+                                                class="slds-input"
+                                                labelClass="slds-form-element__label"
+                                                required="true"
+                                                value="{!v.newBpObject.nuncbau__DOD_Type__c}"
+                                                requiredIndicatorClass="slds-required">
+                                    
+                                    <aura:iteration items="{!v.dtList}" var="item">                               
+                                        <ui:inputSelectOption text="{!item.Id}" label="{!item.Name}" aura:id="selectDtOption"/>                              
+                                    </aura:iteration>
+                                </ui:inputSelect>   
+                            </div>                    
+                        </div>
+                    </form>
+                    
+                </div>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!-- FOOTER -->
+            <!--********-->                
+            <div class="slds-modal__footer">
+                
+                <lightning:button label="Cancel" onclick="{!c.closeModal}"/>
+                <lightning:button label="Save" onclick="{!c.saveItem}" class="slds-button slds-button--brand"/>
+                
+            </div>
+        </div>
+    </div>
+    <div class="slds-backdrop" aura:id="MB-Back"></div>
+    
+</aura:component>

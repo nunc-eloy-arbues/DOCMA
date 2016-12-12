@@ -1,0 +1,157 @@
+<aura:component controller="NuncNewBpfPanelController"  implements="force:appHostable,flexipage:availableForAllPageTypes" access="global">
+    
+    <!--********************-->
+    <!-- DOCMA EVENT SYSTEM -->
+    <!--********************-->    
+    <aura:registerEvent name="docmaNewBpfCreatedEvt" type="c:docmaNewBpfCreatedEvt" description="New Blueprint Field Object was created"/>
+    <aura:registerEvent name="docmaNewBpfByFaCreatedEvt" type="c:docmaNewBpfByFaCreatedEvt" description="New Blueprint Field Object was created from a Document Type Field parent"/>
+    <aura:registerEvent name="docmaNewBpfByBpCreatedEvt" type="c:docmaNewBpfByBpCreatedEvt" description="New Blueprint Field Object was created from a Blueprint parent"/>    
+    <aura:registerEvent name="docmaBpfEditedEvt" type="c:docmaBpfEditedEvt" description="Blueprint Field was edited"/>    
+    
+    <aura:handler event="c:docmaNewBpfCreatedEvt" action="{!c.handleNewBpfCreatedEvt}" description="New Blueprint Field Object was created"/> 
+    <aura:handler event="c:docmaNewBpfByFaCreatedEvt" action="{!c.handleNewBpfByFaCreatedEvt}" description="New Blueprint Field Object was created from a Document Type Field parent"/> 
+    <aura:handler event="c:docmaNewBpfByBpCreatedEvt" action="{!c.handleNewBpfByBpCreatedEvt}" description="New Blueprint Field Object was created from a Blueprint parent"/>     
+    <aura:handler event="c:docmaBpfEditedEvt" action="{!c.handleBpfEditedEvt}" description="Blueprint Field was edited"/>  
+    <!--********************-->
+    
+    <!-- Internal Component Events -->
+    <aura:registerEvent name="nuncInitEventDoneEvt" type="c:nuncInitEventDoneEvt" description="Init event was done. It is fired from Callback."/>        
+    <aura:handler name="nuncInitEventDoneEvt" event="c:nuncInitEventDoneEvt" action="{!c.handleInitEventDoneEvt}" description="We use this event to know when the 'Select component' was feeded"/>      
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="newObject" type="DOD_User_Dialog_Field__c"
+                    default="{ 
+                             'sobjectType': 'DOD_User_Dialog_Field__c',
+                             'Name': '', 
+                             'nuncbau__Blue_Print_Name__c': '',
+                             'nuncbau__DOD_Field__c': '',
+                             'nuncbau__Fixed__c': '',
+                             'nuncbau__Value__c': ''
+                             }" />
+    
+    <aura:attribute name="bpfOld" type="DOD_User_Dialog_Field__c" description="We save old values here before to be edited"  />    
+    <aura:attribute name="bpfOldName" type="String" description="Only the old Name. It's useful with the Clone functionality"/>        
+    <aura:attribute name="mode" type="String" default="default" description="new, createByBp, createByFa, edit" />     
+    <!--    <aura:attribute name="dataTypeList" type="SelectOption[]" description="All Data types from Server" />      -->
+    <aura:attribute name="dtId" type="String" default="false" description="Document Type parent Id" />
+    
+    <aura:attribute name="bpList" type="DOD_Blue_Print_Setup__c[]" description="All Document Blueprint from Server" />      
+    <aura:attribute name="bpId" type="String" default="false" description="Document Blueprint parent Id" />
+    <aura:attribute name="bpName" type="String" default="false" description="Document Blueprint parent Name" />
+    <aura:attribute name="bpItem" type="DOD_Blue_Print_Setup__c" description="Document Blueprint parent Object" />   
+    
+    <aura:attribute name="faList" type="DOD_Field_Assignment__c[]" description="All Document Type Fields from Server" />          
+    <aura:attribute name="faId" type="String" default="false" description="Document Type Field parent Id" />
+    <aura:attribute name="faName" type="String" default="false" description="Document Type Field parent Name" />
+    <aura:attribute name="faItem" type="DOD_Field_Assignment__c" description="Document Type Field parent Object" />       
+   
+    <!--***************************************************************************************************************-->
+    
+    <div role="dialog" aura:id="Modalbox" tabindex="-1" aria-labelledby="header43" class="slds-modal">   
+        <div class="slds-modal__container">
+            
+            
+            
+            <!--********-->
+            <!-- HEADER -->
+            <!--********-->
+            <div class="slds-modal__header">
+                <aura:if isTrue="{! v.mode == 'createByBp' }">
+                    <h2 class="slds-text-heading--medium">Create a Blueprint Field from <b>{!v.bpItem.Name}</b> Document Blueprint</h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'createByFa' }">
+                    <h2 class="slds-text-heading--medium">Create a Blueprint Field from <b>{!v.faItem.Name}</b> Document Type Field</h2>
+                </aura:if>                
+                <aura:if isTrue="{! v.mode == 'new' }">
+                    <h2 class="slds-text-heading--medium">Create a new <b>Blueprint Field</b></h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'edit' }">
+                    <h2 class="slds-text-heading--medium">Editing <b>{!v.newObject.Name}</b> Blueprint Field</h2>
+                </aura:if>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!--* BODY *-->
+            <!--********-->
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds"> 
+                    <form class="slds-form--stacked ">                
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:outputText aura:id="itemName" title="Blueprint Field Name"
+                                               class="slds-input"
+                                               value="{!v.newObject.Name}" />                                                   
+                            </div>                    
+                        </div>                      
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                              
+                                <ui:inputSelect aura:id="bpSelect" label="Document Blueprint" 
+                                                class="slds-input"
+                                                labelClass="slds-form-element__label"
+                                                required="true"
+                                                value="{!v.newObject.nuncbau__Blue_Print_Name__c}"
+                                                requiredIndicatorClass="slds-required">
+                                    
+                                    <aura:iteration items="{!v.bpList}" var="item">                               
+                                        <ui:inputSelectOption text="{!item.Id}" label="{!item.Name}" aura:id="bpSelectOption"/>                              
+                                    </aura:iteration>
+                                </ui:inputSelect>   
+                            </div>                    
+                        </div>
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                              
+                                <ui:inputSelect aura:id="faSelect" label="Document Type Field" 
+                                                class="slds-input"
+                                                labelClass="slds-form-element__label"
+                                                required="true"
+                                                value="{!v.newObject.nuncbau__DOD_Field__c}"
+                                                requiredIndicatorClass="slds-required">
+                                    
+                                    <aura:iteration items="{!v.faList}" var="item">                               
+                                        <ui:inputSelectOption text="{!item.Id}" label="{!item.Name}" aura:id="faSelectOption"/>                              
+                                    </aura:iteration>
+                                </ui:inputSelect>   
+                            </div>                    
+                        </div>
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:inputText aura:id="bpfValue" label="Value"
+                                              class="slds-input"
+                                              labelClass="slds-form-element__label"
+                                              value="{!v.newObject.nuncbau__Value__c}"
+                                              required="false"
+                                              requiredIndicatorClass="slds-required" />                                                   
+                            </div>                    
+                        </div> 
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:inputCheckbox aura:id="bpfFixed" label="Fixed"
+                                                  class="slds-input nunc-checkbox-input"
+                                                  labelClass="slds-form-element__label"
+                                                  value="{!v.newObject.nuncbau__Fixed__c}"
+                                                  required="false"
+                                                  requiredIndicatorClass="slds-required" />                                                   
+                            </div>                    
+                        </div>                         
+                    </form>
+                </div>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!-- FOOTER -->
+            <!--********-->                
+            <div class="slds-modal__footer">
+                
+                <lightning:button label="Cancel" onclick="{!c.closeModal}"/>
+                <lightning:button label="Save" onclick="{!c.saveItem}" class="slds-button slds-button--brand"/>
+                
+            </div>
+        </div>
+    </div>
+    <div class="slds-backdrop" aura:id="MB-Back"></div>
+    
+</aura:component>

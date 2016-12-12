@@ -1,0 +1,5 @@
+<aura:event type="APPLICATION" description="New Document Type Field Object was created">
+    <aura:attribute name="faItem" type="DOD_Field_Assignment__c" default="false" description="" />
+    <aura:attribute name="dtId" type="String" default="false" description="Parent Document Type Id" />
+    <aura:attribute name="dtItem" type="DOD_Type__c" default="false" description="Parent Document Type object" />
+</aura:event>

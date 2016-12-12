@@ -1,0 +1,110 @@
+<aura:component controller="NuncBpfRelatedListController" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName" access="global">
+    
+    <!-- DOCMA EVENT SYSTEM -->
+    <aura:handler event="c:docmaNewBpfCreatedEvt" action="{!c.handleNewBpfCreatedEvt}" description="New Blueprint Field Object was created"/> 
+    <aura:handler event="c:docmaNewBpfByFaCreatedEvt" action="{!c.handleNewBpfByFaCreatedEvt}" description="New Blueprint Field Object was created from a Document Type Field parent"/> 
+	<aura:handler event="c:docmaNewBpfByBpCreatedEvt" action="{!c.handleNewBpfByBpCreatedEvt}" description="New Blueprint Field Object was created from a Document Blueprint parent"/>     
+    <aura:handler event="c:docmaBpfEditedEvt" action="{!c.handleBpfEditedEvt}" description="Blueprint Field was edited"/>  
+    <aura:handler event="c:docmaBpfDeletedEvt" action="{!c.handleBpfDeletedEvt}" description="Blueprint Field was deleted"/>  
+    <aura:handler event="c:docmaBpfClonedEvt" action="{!c.handleBpfClonedEvt}" description="Blueprint Field was cloned"/>          
+    <aura:handler event="c:docmaBpEditedEvt" action="{!c.handleBpEditedEvt}" description="Blueprint object was edited"/>     
+	<aura:handler event="c:docmaBpDeletedEvt" action="{!c.handleBpDeletedEvt}" description="Blueprint object was deleted"/>
+    
+    <aura:registerEvent name="docmaBpfDeletedEvt" type="c:docmaBpfDeletedEvt" description="Fire an event when a Blueprint Field record are deleted"/>
+    <!-- END -->
+    
+    <aura:attribute name="bpId" type="String" description="Variable to save Document type Id"/> 
+    <aura:attribute name="bpItem" type="DOD_Blue_Print_Setup__c" description="Variable to save parent Document Blueprint"/> 
+    <aura:attribute name="list" type="DOD_User_Dialog_Field__c[]" description="List feeded with all Blueprint Field from parent Document Blueprint"/>    
+    <aura:attribute name="maxItems" type="Integer" description="Max number items to show on the list"/>
+    
+    <aura:registerEvent name="navigateToSObject" type="force:navigateToSObject" description="Event to open the page record"/>
+    
+    <aura:handler event="ltng:selectSObject" action="{!c.handleSObjectEvt}"/>
+    
+    <div class="nunc">       
+        <article class="slds-card">
+            <div class="slds-card__header slds-grid">
+                <header class="slds-media slds-media--center slds-has-flexi-truncate">
+                    <div class="slds-media__figure">
+                        <c:svgIcon class="slds-icon slds-icon-standard-poll slds-icon--small"
+                                   svgPath="/resource/SLDS213/assets/icons/standard-sprite/svg/symbols.svg#poll"
+                                   category="standard "
+                                   size="small"
+                                   name="poll" />
+                    </div>
+                    <div class="slds-media__body slds-truncate">
+                        <h2>
+                            <a href="#" class="slds-text-link--reset" onclick="{!c.aPress}">
+                                <span class="slds-text-heading--small">Blueprint Fields ({!v.list.length})</span>
+                            </a>
+                        </h2>
+                    </div>
+                </header>
+                <div class="slds-no-flex">
+                    <button aura:id="buttonNewBpf" disabled="true" class="slds-button slds-button--neutral" onclick="{!c.createBpf}">Create BPF</button>
+                </div>
+            </div>
+            <div class="slds-card__body">
+                <table class="slds-table slds-table--bordered slds-table--cell-buffer slds-table--striped slds-max-medium-table--stacked  slds-table--col-bordered">
+                    <thead>
+                        <tr class="slds-text-title--caps">
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Name">Name</div>
+                            </th>
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Document Type Field">Document Type Field</div>
+                            </th>    
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Value">Value</div>
+                            </th>    
+                            <th scope="col">
+                                <div class="slds-truncate slds-cell-wrap" title="Fixed">Fixed</div>
+                            </th>                                
+                            <th scope="col" class="slds-cell-shrink">
+                                <div class="slds-truncate" title="Action">Action</div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody > 
+                        <aura:iteration items="{!v.list}" var="item" indexVar="indx">
+                            <tr>
+                                <th role="row" data-label="Document Type Field Name">
+                                    <div class="slds-truncate slds-text-body--regular" title="{!item.Name}">
+                                        <a data-id="{!item.Id}" onclick="{!c.navigateToPageRecord}">
+                                            {!item.Name}
+                                        </a>
+                                    </div>
+                                </th>
+                                <td data-label="Document Type Field">
+                                    <div class="slds-truncate slds-text-body--regular"  title="{!item.nuncbau__DOD_Field__r.Name}">{!item.nuncbau__DOD_Field__r.Name}</div>
+                                </td>
+                                <td data-label="Value">
+                                    <div class="slds-truncate slds-text-body--regular"  title="{!item.nuncbau__Value__c}">{!item.nuncbau__Value__c}</div>
+                                </td>
+                                <td data-label="Fixed">
+                                    <div class="slds-truncate slds-text-body--regular"  title="{!item.nuncbau__Fixed__c}">{!item.nuncbau__Fixed__c}</div>
+                                </td>                                
+                                <td role="row" data-label="Action" class="slds-cell-shrink">                                                                      
+                                    <lightning:buttonMenu name="menuQuickAction" aura:id="menuQuickAction" value="{!item}" alternativeText="Quick Actions" 
+                                                          onselect="{!c.openQuickMenuAction}" menuAlignment="right" iconSize="x-small" >
+                                        <lightning:menuItem title="Details" label="Details" value="{!item}" iconName="utility:info_alt" disabled="false"/>
+                                        <lightning:menuItem title="Edit" label="{! 'Edit '+item.Name}" value="{!item}" iconName="utility:edit_form" disabled="false"/>
+                                        <lightning:menuItem title="Clone" label="Clone" value="{!item}" iconName="utility:file" disabled="true"/>
+                                        <lightning:menuItem title="Delete" label="Delete" value="{!item}" iconName="utility:delete" disabled="false"/>
+                                    </lightning:buttonMenu>                              
+                                </td>
+                            </tr>
+                        </aura:iteration>                                
+                    </tbody>
+                </table>
+            </div>
+            <div class="slds-card__footer">
+                <a href="#" onclick="{!c.aPress}"><span class="slds-assistive-text">View All ({!v.list.length})</span></a>
+            </div>
+        </article>
+    </div>  
+    
+    <div aura:id="modalDiv">
+    </div>
+</aura:component>

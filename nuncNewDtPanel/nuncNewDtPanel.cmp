@@ -1,0 +1,80 @@
+<aura:component controller="NuncNewDtPanelController"  implements="force:appHostable,flexipage:availableForAllPageTypes" access="global">
+    
+    <!--****************************************************************************************************-->
+    <!-- DOCMA EVENT SYSTEM                                                                                 -->
+    <!--****************************************************************************************************-->    
+    <aura:registerEvent name="docmaNewDtCreatedEvt" type="c:docmaNewDtCreatedEvt" description="New Document type object created."/>
+    <aura:registerEvent name="docmaDtEditedEvt" type="c:docmaDtEditedEvt" description="Docuemnt type object edited."/>    
+    
+    <aura:handler event="c:docmaNewDtCreatedEvt" action="{!c.handleNewDtCreatedEvt}" description="New Document type Object was created"/> 
+    <aura:handler event="c:docmaDtEditedEvt" action="{!c.handleDtEditedEvt}" description="Document type object was edited"/>     
+    <!--****************************************************************************************************-->
+    
+    <!-- Internal Component Events -->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    
+    <aura:attribute name="newDtObject" type="DOD_Type__c" description="Where the new Document type is saved" 
+                    default="{ 
+                             'sobjectType': 'DOD_Type__c',
+                             'Name': ''
+                             }" />
+    <aura:attribute name="dtOld" type="DOD_Type__c" description="We save Dt values here before to be edited"  />    
+    <aura:attribute name="mode" type="String" default="default" description="new or edit" />     
+    
+    <!--****************************************************************************************************-->
+    
+    <div role="dialog" aura:id="Modalbox" tabindex="-1" aria-labelledby="header43" class="slds-modal">   
+        <div class="slds-modal__container">
+            
+            
+            
+            <!--********-->
+            <!-- HEADER -->
+            <!--********-->
+            <div class="slds-modal__header">
+                <aura:if isTrue="{! v.mode == 'new' }">
+                    <h2 class="slds-text-heading--medium">Create a <b>new Document type</b></h2>
+                </aura:if>
+                <aura:if isTrue="{! v.mode == 'edit' }">
+                    <h2 class="slds-text-heading--medium">Editing <b>{!v.newDtObject.Name}</b> Document type</h2>
+                </aura:if>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!--* BODY *-->
+            <!--********-->
+            <div class="slds-modal__content slds-p-around--medium">
+                <div class="slds"> 
+                    <form class="slds-form--stacked ">                
+                        <div class="slds-form-element slds-is-required">
+                            <div class="slds-form-element__control">                                                             
+                                <ui:inputText aura:id="itemName" label="Document type Name"
+                                              class="slds-input"
+                                              labelClass="slds-form-element__label"
+                                              value="{!v.newDtObject.Name}"
+                                              required="true"
+                                              requiredIndicatorClass="slds-required" />                                                   
+                            </div>                    
+                        </div>
+                    </form>                    
+                </div>
+            </div>
+            
+            
+            
+            <!--********-->
+            <!-- FOOTER -->
+            <!--********-->                
+            <div class="slds-modal__footer">
+                
+                <lightning:button label="Cancel" onclick="{!c.closeModal}"/>
+                <lightning:button label="Save" onclick="{!c.saveItem}" class="slds-button slds-button--brand"/>
+                
+            </div>
+        </div>
+    </div>
+    <div class="slds-backdrop" aura:id="MB-Back"></div>
+    
+</aura:component>
